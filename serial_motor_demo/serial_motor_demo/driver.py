@@ -45,16 +45,30 @@ class MotorDriver(Node):
 
         # Setup topics & services
 
+        # ############################################
+        # ROS2 Subscriber Node for motor speed command
+
         self.subscription = self.create_subscription(
             MotorCommand,
             'motor_command',
             self.motor_command_callback,
             10)
+        # ############################################
+
+        # ############################################
+        # ROS2 Publisher Node for motor velocity command
 
         self.speed_pub = self.create_publisher(MotorVels, 'motor_vels', 10)
 
+        # ############################################
+
+        
+        # ############################################
+        # ROS2 Publisher Node for motor Encoder Value command
+
         self.encoder_pub = self.create_publisher(EncoderVals, 'encoder_vals', 10)
         
+        # ############################################
 
         # Member Variables
 
