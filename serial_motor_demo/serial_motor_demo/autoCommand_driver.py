@@ -8,8 +8,6 @@ import math
 import serial
 from threading import Lock
 
-from std_msgs.msg import String
-
 
 
 class MotorDriver(Node):
@@ -20,7 +18,7 @@ class MotorDriver(Node):
 
         # Setup parameters
 
-        self.declare_parameter('encoder_cpr', value=1)
+        self.declare_parameter('encoder_cpr', value=0)
         if (self.get_parameter('encoder_cpr').value == 0):
             print("WARNING! ENCODER CPR SET TO 0!!")
 
@@ -70,19 +68,6 @@ class MotorDriver(Node):
 
         self.encoder_pub = self.create_publisher(EncoderVals, 'encoder_vals', 10)
         
-        # ############################################
-
-        # ROS2 Subscriber Node for Motor Auto Operations command
-        msg =String()
-        count = 0
-
-        msg.data = f"Hello everyone  {count}"
-
-        self.subscription = self.create_subscription(
-            msg,
-            'RobotAuto_Command',
-            self.motor_command_callback,
-            10)
         # ############################################
 
         # Member Variables
@@ -194,45 +179,18 @@ class MotorDriver(Node):
     def close_conn(self):
         self.conn.close()
 
-class RobotAutoPublisher(Node):
 
-    def __init__(self):
-
-        super().__init__("RobotAutoPublisher_node")
-        self.get_logger().info("Hello Semiu, from ROS2")
-        self.publishers_ = self.create_publisher(String, 'topic', 10)
-        timer_period = 0.5
-        self.timer = self.create_timer(timer_period, self.timer_callback)
-        self.count = 0
-
-    def timer_callback(self):
-
-        msg =String()
-        msg.data = f"Hello everyone  {self.count}"
-        self.publishers_.publish(msg)
-        self.count += 2
-        self.get_logger().info(f"Publishing {msg.data}")
 
 def main(args=None):
     
     rclpy.init(args=args)
 
-    # Create Node
-    robotAutoPublisherNode = RobotAutoPublisher()
     motor_driver = MotorDriver()
 
-    
     rate = motor_driver.create_rate(2)
     while rclpy.ok():
         rclpy.spin_once(motor_driver)
         motor_driver.check_encoders()
-        # ######################################################
-        # #######Robot Auto Command Publisher Node##############
-    
-        # Use the Node
-        #rclpy.spin(robotAutoPublisherNode) # NRuns the node continuously
-        
-        ########################################################
 
 
     motor_driver.close_conn()
